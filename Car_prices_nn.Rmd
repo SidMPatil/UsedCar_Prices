@@ -67,8 +67,3 @@ rmse(error)
 mae(error)
 ```
 
-#Cross-validation 
-```{r}
-
-```
-
