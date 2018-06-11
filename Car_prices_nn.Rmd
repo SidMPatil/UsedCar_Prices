@@ -1,0 +1,74 @@
+---
+title: "Car_Prices_NN"
+author: "Siddharth Patil"
+date: "May 9, 2018"
+output: html_document
+---
+
+# Importing the data; min-max normalization; Splitting data into train and test datasets
+```{r}
+data = as.data.frame(read.csv("ToyotaCorolla.csv", header = TRUE))
+library(caTools)
+set.seed(123)
+sample_1 = sample.split(data, SplitRatio = 0.7)
+test_1 = subset(data, sample_1 == FALSE)
+
+data_norm = (data - min(data))/(max(data) - min(data))
+
+library(caTools)
+set.seed(123)
+sample = sample.split(data_norm, SplitRatio = 0.7)
+train = subset(data_norm, sample == TRUE)
+test_norm = (test_1 - min(test_1))/(max(test_1) - min(test_1))
+
+data = as.data.frame(read.csv("ToyotaCorolla.csv", header = TRUE))
+data_norm = (data - min(data))/(max(data) - min(data))
+
+```
+
+
+# Fit a neural network using training data; Plot the neural network
+```{r}
+#install.packages("neuralnet")
+library(neuralnet)
+
+n <- names(train)
+f <- as.formula(paste("Price ~", paste(n[!n %in% "Price"], collapse = " + ")))
+
+set.seed(2)
+NN = neuralnet(f ,train, hidden = 1, linear.output = TRUE)
+
+plot(NN)
+```
+
+# Make predictions for the test dataset
+```{r}
+predict_test = compute(NN, test[,c(1:26)])
+predict_test = (predict_test$net.result * (max(test$Price) - min(test$Price))) + min(test$Price)
+
+plot(test$Price, predict_test, col = 'blue', pch = 16, xlab = "Actual Price", ylab = "Predicted Price")
+
+```
+
+# Calculating RMSE and MAE
+```{r}
+error = predict_test - test_1$Price
+
+rmse <- function(error)
+{
+    sqrt(mean(error^2))
+}
+
+mae <- function(error)
+{
+    mean(abs(error))
+}
+rmse(error)
+mae(error)
+```
+
+#Cross-validation 
+```{r}
+
+```
+
